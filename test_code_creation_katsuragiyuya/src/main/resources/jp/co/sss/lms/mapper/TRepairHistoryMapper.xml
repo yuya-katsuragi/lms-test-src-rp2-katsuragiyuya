@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TRepairHistoryMapper">
+
+	<!-- Task.87 -->
+	<select id="getRepairDtoList" resultType="jp.co.sss.lms.dto.RepairDto">
+		SELECT * 
+		FROM t_repair_history
+		WHERE delete_flg = #{deleteFlg}
+		ORDER BY history_id DESC
+	</select>
+
+	<!-- Task.87 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.TRepairHistory">
+		UPDATE t_repair_history
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE history_id = #{historyId}
+	</update>
+
+	<!-- Task.88 -->
+	<select id="findByHistoryId" resultType="jp.co.sss.lms.entity.TRepairHistory">
+		SELECT * 
+		FROM t_repair_history
+		WHERE history_id = #{historyId} 
+		AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.88 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.TRepairHistory" useGeneratedKeys="true" keyProperty="historyId">
+		INSERT INTO t_repair_history
+		(
+			content,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{content},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+	<!-- Task.88 -->
+	<update id="update" parameterType="jp.co.sss.lms.entity.TRepairHistory">
+		UPDATE t_repair_history
+		SET
+			content = #{content},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE history_id = #{historyId}
+	</update>
+
+</mapper>

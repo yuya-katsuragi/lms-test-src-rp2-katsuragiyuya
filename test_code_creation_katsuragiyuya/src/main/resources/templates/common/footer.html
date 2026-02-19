@@ -1,0 +1,33 @@
+<html xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+<meta charset="UTF-8" />
+<div th:fragment="layout-footer" th:remove="tag">
+	<div id="footer">
+		<div class="container">
+			<p class="muted credit">Copyright&copy; 2021 System Shared co., ltd, ALL Rights Reserved</p>
+
+			<!--/* Task.01 ②トップへ戻る機能の追加 */-->
+			<a id="page_top" href="#">
+				<i  class="arrow"></i>
+			</a>
+			<script>
+				$('#page_top').hide();
+				$(window).scroll(function() {
+					if ($(this).scrollTop() > 300) {
+						$('#page_top').fadeIn();
+					} else {
+						$('#page_top').fadeOut();
+					}
+				});
+		
+				$('#page_top').click(function() {
+					$('body,html').animate({
+						scrollTop : 0
+					}, 700);
+					return false;
+				});
+			</script>
+
+		</div>
+	</div>
+</div>
+</html>

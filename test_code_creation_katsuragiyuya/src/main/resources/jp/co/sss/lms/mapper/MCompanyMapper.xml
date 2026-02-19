@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MCompanyMapper">
+
+	<!-- Task.43 -->
+	<select id="getCompanyDto" resultType="jp.co.sss.lms.dto.CompanyDto">
+		SELECT
+			company_id,
+			company_name,
+			work_start_time,
+			work_end_time,
+			rest_start_time,
+			rest_end_time,
+			holiday,
+			account_id,
+			company_name_kana,
+			post_number1,
+			post_number2,
+			COALESCE(address, '') AS address,
+			phone_number1,
+			phone_number2,
+			phone_number3,
+			representative_post,
+			capital,
+			worker_amount,
+			subsidy_phone_number1,
+			subsidy_phone_number2,
+			subsidy_phone_number3,
+			prefecture,
+			representative_name,
+			file_share_flg,
+			last_modified_date
+		FROM m_company
+		WHERE delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.66 -->
+	<select id="findByCompanyId" resultType="jp.co.sss.lms.entity.MCompany">
+		SELECT * 
+		FROM m_company
+		WHERE company_id = #{companyId} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.66 -->
+	<update id="updateCompanySubsidyInfo" parameterType="jp.co.sss.lms.entity.MCompany">
+		UPDATE m_company
+		SET
+			company_name = #{companyName},
+			company_name_kana = #{companyNameKana},
+			post_number1 = #{postNumber1},
+			post_number2 = #{postNumber2},
+			address = #{address},
+			phone_number1 = #{phoneNumber1},
+			phone_number2 = #{phoneNumber2},
+			phone_number3 = #{phoneNumber3},
+			representative_post = #{representativePost},
+			representative_name = #{representativeName},
+			<if test="capital != null">
+				capital = #{capital},
+				worker_amount = #{workerAmount},
+				work_start_time = #{workStartTime},
+				work_end_time = #{workEndTime},
+				rest_start_time = #{restStartTime},
+				rest_end_time = #{restEndTime},
+				holiday = #{holiday},
+				subsidy_phone_number1 = #{subsidyPhoneNumber1},
+				subsidy_phone_number2 = #{subsidyPhoneNumber2},
+				subsidy_phone_number3 = #{subsidyPhoneNumber3},
+				prefecture = #{prefecture},
+			</if>
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE company_id = #{companyId}
+	</update>
+
+	<!-- Task.104 -->
+	<select id="getCompanyDtoForSearch" resultType="jp.co.sss.lms.dto.CompanyDto">
+		SELECT
+			company_id,
+			company_name,
+			work_start_time,
+			work_end_time,
+			rest_start_time,
+			rest_end_time,
+			holiday,
+			account_id,
+			company_name_kana,
+			post_number1,
+			post_number2,
+			address,
+			phone_number1,
+			phone_number2,
+			phone_number3,
+			representative_post,
+			capital,
+			worker_amount,
+			subsidy_phone_number1,
+			subsidy_phone_number2,
+			subsidy_phone_number3,
+			prefecture,
+			representative_name,
+			file_share_flg,
+			last_modified_date
+		FROM m_company
+		WHERE delete_flg = #{deleteFlg}
+		<if test="companyName != null and companyName != ''">
+			AND company_name LIKE '%${companyName}%'
+		</if>
+		<if test="address != null and address != ''">
+			AND address LIKE '%${address}%'
+		</if>
+	</select>
+
+	<!-- Task.104 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.MCompany">
+		UPDATE m_company
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE company_id = #{companyId}
+	</update>
+
+	<!-- Task.105 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.MCompany"
+		useGeneratedKeys="true" keyProperty="companyId">
+		INSERT INTO m_company
+		(
+			company_name,
+			file_share_flg,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{companyName},
+			#{fileShareFlg},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+	<!-- Task.105 -->
+	<update id="updateCompanyName" parameterType="jp.co.sss.lms.entity.MCompany">
+		UPDATE m_company
+		SET
+			company_name = #{companyName},
+			file_share_flg = #{fileShareFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE company_id = #{companyId}
+	</update>
+
+	<!-- Task.110 -->
+	<select id="getCompanyCourseDtoList" resultType="jp.co.sss.lms.dto.CompanyCourseDto">
+		SELECT
+			t1.company_id,
+			t1.company_name,
+			t1.address AS companyAddress,
+			t3.course_id,
+			t3.course_name,
+			t3.open_time,
+			t3.close_time,
+			t5.place_id,
+			t5.place_name,
+			t5.place_description AS placeAddress
+		FROM m_company t1
+			LEFT OUTER JOIN t_company_course t2 ON t2.company_id = t1.company_id AND t2.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_course t3 ON t3.course_id = t2.course_id AND t3.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_place_assign t4 ON t4.company_course_id = t2.company_course_id AND t4.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_place t5 ON t5.place_id = t4.place_id AND t5.delete_flg = #{deleteFlg}
+		WHERE t1.delete_flg = #{deleteFlg}
+		ORDER BY t1.company_id ASC
+	</select>
+
+</mapper>

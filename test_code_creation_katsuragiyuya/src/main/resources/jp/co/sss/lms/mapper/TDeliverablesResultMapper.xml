@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TDeliverablesResultMapper">
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.TDeliverablesResult"
+		useGeneratedKeys="true" keyProperty="deliverablesResultId">
+		INSERT INTO t_deliverables_result (
+			deliverables_section_id,
+			lms_user_id,
+			score,
+			feedback,
+			file_path,
+			file_size,
+			submission_time,
+			account_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{deliverablesSectionId},
+			#{lmsUserId},
+			#{score},
+			#{feedback},
+			#{filePath},
+			#{fileSize},
+			#{submissionTime},
+			#{accountId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+</mapper>

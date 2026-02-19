@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MExamMapper">
+
+	<resultMap type="jp.co.sss.lms.dto.ExamQuestionDto" id="examQuestionDto">
+		<id column="exam_id" property="examId" />
+		<result column="exam_name" property="examName" />
+		<result column="limit_time" property="limitTime" />
+		<collection property="questionDtoList" ofType="jp.co.sss.lms.dto.QuestionDto">
+			<result column="question_id" property="questionId" />
+			<result column="genre_detail_name" property="genreDetailName" />
+			<result column="question" property="question" />
+			<result column="choice_1" property="choice1" />
+			<result column="choice_2" property="choice2" />
+			<result column="choice_3" property="choice3" />
+			<result column="choice_4" property="choice4" />
+		</collection>
+	</resultMap>
+	<select id="getExamQuestion" resultMap="examQuestionDto">
+		SELECT
+			t1.exam_id,
+			t1.exam_name,
+			t1.limit_time,
+			t2.question_id,
+			t3.genre_detail_name,
+			t2.question,
+			t2.choice_1,
+			t2.choice_2,
+			t2.choice_3,
+			t2.choice_4
+		FROM m_exam t1
+			LEFT OUTER JOIN m_question t2 ON t2.exam_id = t1.exam_id
+			LEFT OUTER JOIN m_genre_detail t3 ON t3.genre_detail_id = t2.genre_detail_id
+		WHERE t1.exam_id = #{examId} 
+			AND t1.delete_flg = #{deleteFlg}
+		ORDER BY t2.question_id
+	</select>
+
+	<!-- Task.51 -->
+	<select id="getExamDtoList" resultType="jp.co.sss.lms.dto.ExamDto">
+		SELECT DISTINCT
+			t1.exam_id,
+			t1.exam_name,
+			t1.exam_description,
+			t1.limit_time,
+			t1.genre_id,
+			t1.account_id,
+			t1.hidden_flg
+		FROM m_exam t1
+			LEFT OUTER JOIN t_exam_section t2 ON t2.exam_id = t1.exam_id AND t2.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_section t3 ON t3.section_id = t2.section_id AND t3.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_course t4 ON t4.course_id = t3.course_id AND t4.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_course_user t5 ON t5.course_id = t4.course_id AND t5.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_lms_user t6 ON t6.lms_user_id = t5.lms_user_id AND t6.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_user_place t7 ON t7.lms_user_id = t6.lms_user_id AND t7.delete_flg = #{deleteFlg}
+		WHERE t1.delete_flg = #{deleteFlg}
+		<!-- Task.81 null対応を追加 -->
+		<if test="placeId != null">
+			AND t7.place_id = #{placeId}
+		</if>
+		<!-- Task.81 -->
+		<if test="examName != null and examName != ''">
+			AND t1.exam_name LIKE '%${examName}%'
+		</if>
+	</select>
+
+	<!-- Task.52 -->
+	<select id="getExamDetailDto" resultType="jp.co.sss.lms.dto.ExamDetailDto">
+		SELECT
+			t1.exam_id,
+			t1.exam_name,
+			t1.limit_time,
+			t2.num_of_question,
+			ROUND(t3.avg_score / t2.num_of_question * 100, 1) AS avg_score
+		FROM m_exam t1
+			INNER JOIN (SELECT exam_id, COUNT(*) AS num_of_question FROM m_question 
+				WHERE delete_flg = #{deleteFlg} GROUP BY exam_id) t2 ON t2.exam_id = t1.exam_id
+			LEFT OUTER JOIN (SELECT tt2.exam_id, AVG(tt1.score) AS avg_score FROM t_exam_result tt1
+					INNER JOIN t_exam_section tt2 ON tt2.exam_section_id = tt1.exam_section_id AND tt2.delete_flg = #{deleteFlg}
+					WHERE tt2.exam_id = #{examId} AND tt1.mark_flg = 1 AND tt1.delete_flg = #{deleteFlg} 
+					GROUP BY tt2.exam_id) t3 ON t3.exam_id = t1.exam_id
+		WHERE t1.exam_id = #{examId} 
+			AND t1.delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.56 -->
+	<select id="getExamDto" resultType="jp.co.sss.lms.dto.ExamDto">
+		SELECT
+			exam_id,
+			exam_name,
+			exam_description,
+			limit_time,
+			genre_id,
+			account_id,
+			hidden_flg
+		FROM m_exam
+		WHERE exam_id =#{examId} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.81 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.MExam">
+		UPDATE m_exam
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE exam_id = #{examId}
+	</update>
+
+	<!-- Task.113 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.MExam" useGeneratedKeys="true" keyProperty="examId">
+		INSERT INTO m_exam
+		(
+			exam_name,
+			limit_time,
+			genre_id,
+			account_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date,
+			hidden_flg
+		)
+		VALUES
+		(
+			#{examName},
+			#{limitTime},
+			#{genreId},
+			#{accountId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate},
+			#{hiddenFlg}
+		)
+	</insert>
+
+	<!-- Task.113 -->
+	<update  id="update" parameterType="jp.co.sss.lms.entity.MExam">
+		UPDATE m_exam
+		SET
+			exam_name = #{examName},
+			limit_time = #{limitTime},
+			genre_id = #{genreId},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE exam_id = #{examId}
+	</update>
+
+	<!-- Task.116 -->
+	<select id="getExamList" resultType="jp.co.sss.lms.dto.ExamDto">
+		SELECT
+			exam_id,
+			exam_name,
+			exam_description,
+			limit_time,
+			genre_id,
+			account_id,
+			hidden_flg
+		FROM m_exam
+		WHERE delete_flg = #{deleteFlg}
+	</select>
+
+</mapper>

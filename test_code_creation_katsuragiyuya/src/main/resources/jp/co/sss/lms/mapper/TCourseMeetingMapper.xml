@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TCourseMeetingMapper">
+
+	<!-- Task.106 -->
+	<select id="findByCourseMeetingId" resultType="jp.co.sss.lms.entity.TCourseMeeting">
+		SELECT * FROM t_course_meeting
+		WHERE meeting_file_id = #{meetingFileId} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.114 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.TCourseMeeting" useGeneratedKeys="true" keyProperty="courseMeetingId">
+		INSERT INTO t_course_meeting (
+			course_id,
+			meeting_file_id,
+			account_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{courseId},
+			#{meetingFileId},
+			#{accountId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+	<!-- Task.114 -->
+	<delete id="delete">
+		DELETE FROM t_course_meeting
+		WHERE course_id = #{courseId}
+	</delete>
+
+</mapper>

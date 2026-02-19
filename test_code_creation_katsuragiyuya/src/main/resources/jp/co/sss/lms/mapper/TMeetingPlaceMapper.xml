@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TMeetingPlaceMapper">
+
+	<!-- Task.108 -->
+	<select id="getMeetingPlaceCount" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM t_meeting_place
+		WHERE meeting_schedule_id = #{meetingScheduleId} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.108 -->
+	<update id="updatePublishedFlg" parameterType="jp.co.sss.lms.entity.TMeetingPlace">
+		UPDATE t_meeting_place
+		SET
+			published_flg = #{publishedFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE meeting_place_id = #{meetingPlaceId}
+	</update>
+
+	<!-- Task.108 -->
+	<delete id="delete">
+		DELETE FROM t_meeting_place
+		WHERE meeting_schedule_id = #{meetingScheduleId}
+	</delete>
+
+	<!-- Task.110 -->
+	<select id="getMeetingPlaceId" resultType="Integer">
+		SELECT meeting_place_id
+		FROM t_meeting_place
+		WHERE meeting_schedule_id = #{meetingScheduleId} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.110 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.TMeetingPlace" useGeneratedKeys="true" keyProperty="meetingPlaceId">
+		INSERT INTO t_meeting_place (
+			meeting_schedule_id,
+			place_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date,
+			meeting_place_note,
+			published_flg
+		) VALUES (
+			#{meetingScheduleId},
+			#{placeId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate},
+			#{meetingPlaceNote},
+			#{publishedFlg}
+		)
+	</insert>
+
+</mapper>

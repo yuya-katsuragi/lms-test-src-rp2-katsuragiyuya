@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MPlaceMapper">
+
+	<!-- Task.43 -->
+	<select id="findByPlaceId" resultType="jp.co.sss.lms.entity.MPlace">
+		SELECT * 
+		FROM m_place
+		WHERE place_id = #{placeId} 
+			AND hidden_flg = #{hiddenFlg} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.58 -->
+	<select id="getUserAttendanceDto" resultType="jp.co.sss.lms.dto.UserAttendanceDto">
+		SELECT
+			t1.place_id,
+			t3.lms_user_id,
+			t4.user_name,
+			t6.course_id,
+			t6.course_name,
+			t9.company_attendance_id,
+			t8.student_attendance_id,
+			t7.date AS training_date,
+			t8.training_start_time,
+			t8.training_end_time,
+			t8.blank_time,
+			t8.status,
+			t8.note
+		FROM m_place t1
+			INNER JOIN t_user_place t2 ON t2.place_id = t1.place_id AND t2.delete_flg = #{deleteFlg}
+			INNER JOIN m_lms_user t3 ON t3.lms_user_id = t2.lms_user_id AND t3.delete_flg = #{deleteFlg}
+			INNER JOIN m_user t4 ON t4.user_id = t3.user_id AND t4.delete_flg = #{deleteFlg}
+			INNER JOIN t_course_user t5 ON t5.lms_user_id = t3.lms_user_id AND t5.delete_flg = #{deleteFlg}
+			INNER JOIN m_course t6 ON t6.course_id = t5.course_id AND t6.delete_flg = #{deleteFlg}
+			INNER JOIN m_section t7 ON t7.course_id = t6.course_id AND t7.date BETWEEN #{from} AND #{to} AND t7.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_student_attendance t8 ON t8.lms_user_id = t3.lms_user_id AND t8.training_date = t7.date AND t8.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_company_attendance t9 ON t9.lms_user_id = t3.lms_user_id AND t9.training_date = t7.date AND t9.delete_flg = #{deleteFlg}
+		WHERE (t9.training_date IS NULL OR (t9.training_date IS NOT NULL AND t9.training_start_time = '' AND t9.training_end_time = '' AND t9.status != '1')) 
+			AND t4.authority = '0001'
+			AND t1.place_id = #{placeId} 
+			AND t1.delete_flg = #{deleteFlg}
+		ORDER BY t7.date ASC, 
+			t3.lms_user_id ASC
+	</select>
+
+	<!-- Task.79 -->
+	<select id="getPlaceDtoList" resultType="jp.co.sss.lms.dto.PlaceDto">
+		SELECT
+			place_id,
+			place_name,
+			place_description,
+			support_available,
+			seating_capacity,
+			place_note,
+			hidden_flg
+		FROM m_place
+		WHERE hidden_flg = #{hiddenFlg} 
+			AND delete_flg = #{deleteFlg}
+		<if test="placeName != null and placeName != ''">
+			AND place_name LIKE '%${placeName}%'
+		</if>
+	</select>
+
+	<!-- Task.95 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.MPlace">
+		UPDATE m_place
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE place_id = #{placeId}
+	</update>
+
+	<!-- Task.96 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.MPlace" useGeneratedKeys="true" keyProperty="placeId">
+		INSERT INTO m_place
+		(
+			place_name,
+			place_description,
+			support_available,
+			account_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date,
+			seating_capacity,
+			place_note,
+			hidden_flg
+		) VALUES (
+			#{placeName},
+			#{placeDescription},
+			#{supportAvailable},
+			#{accountId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate},
+			#{seatingCapacity},
+			#{placeNote},
+			#{hiddenFlg}
+		)
+	</insert>
+
+	<!-- Task.96 -->
+	<update id="update" parameterType="jp.co.sss.lms.entity.MPlace">
+		UPDATE m_place
+		SET
+			place_name = #{placeName},
+			place_description = #{placeDescription},
+			support_available = #{supportAvailable},
+			seating_capacity = #{seatingCapacity},
+			place_note = #{placeNote},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE place_id = #{placeId}
+	</update>
+
+</mapper>

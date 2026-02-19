@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MLmsUserMapper">
+
+	<select id="getUserDetail" resultType="jp.co.sss.lms.dto.UserDetailDto">
+		SELECT
+			t1.lms_user_id,
+			t1.user_id,
+			t2.user_name,
+			t2.kana,
+			t2.subsidy_category_id,
+			t1.role,
+			t2.login_id,
+			t1.hope_via_traning,
+			t1.programming_experience,
+			t4.company_name,
+			t6.course_id,
+			t6.course_name,
+			t8.place_name,
+			t8.place_note,
+			t8.place_description,
+			<!-- Task.47 -->
+			t1.account_id
+		FROM m_lms_user t1
+			INNER JOIN m_user t2 ON t1.user_id = t2.user_id
+			LEFT OUTER JOIN t_user_company t3 ON t1.lms_user_id = t3.lms_user_id
+			LEFT OUTER JOIN m_company t4 ON t3.company_id = t4.company_id
+			LEFT OUTER JOIN t_course_user t5 ON t1.lms_user_id = t5.lms_user_id
+			LEFT OUTER JOIN m_course t6 ON t5.course_id = t6.course_id
+			LEFT OUTER JOIN t_user_place t7 ON t1.lms_user_id = t7.lms_user_id
+			LEFT OUTER JOIN m_place t8 ON t7.place_id = t8.place_id
+		WHERE t1.lms_user_id = #{lmsUserId}
+			AND t1.delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.43 -->
+	<select id="getUserDetailForSearch" resultType="jp.co.sss.lms.dto.UserDetailDto">
+		SELECT
+			t1.lms_user_id,
+			t1.user_id,
+			t2.user_name,
+			t1.role,
+			t2.login_id,
+			t1.hope_via_traning,
+			t1.programming_experience,
+			t4.company_name,
+			t6.course_id,
+			t6.course_name,
+			t8.place_name,
+			t8.place_note,
+			t8.place_description,
+			t1.account_id,
+			<!-- Task.79 -->
+			t2.leave_flg,
+			t2.leave_date
+		FROM m_lms_user t1
+			INNER JOIN m_user t2 ON t1.user_id = t2.user_id
+			LEFT OUTER JOIN t_user_company t3 ON t1.lms_user_id = t3.lms_user_id
+			LEFT OUTER JOIN m_company t4 ON t3.company_id = t4.company_id
+			LEFT OUTER JOIN t_course_user t5 ON t1.lms_user_id = t5.lms_user_id
+			LEFT OUTER JOIN m_course t6 ON t5.course_id = t6.course_id
+			LEFT OUTER JOIN t_user_place t7 ON t1.lms_user_id = t7.lms_user_id
+			LEFT OUTER JOIN m_place t8 ON t7.place_id = t8.place_id
+		WHERE t1.delete_flg = #{deleteFlg}
+		<if test="courseName != null and courseName != ''">
+			AND t6.course_name LIKE '%${courseName}%'
+		</if>
+		<if test="companyName != null and companyName != ''">
+			AND t4.company_name LIKE '%${companyName}%'
+		</if>
+		<if test="userName != null and userName != ''">
+			AND t2.user_name LIKE '%${userName}%'
+		</if>
+		<if test="placeIdList != null and placeIdList.size() > 0">
+			AND t8.place_id IN
+			<foreach item="placeId" collection="placeIdList" open="(" separator="," close=")">
+				#{placeId}
+			</foreach>
+		</if>
+		<!-- Task.79 -->
+		<if test="role != null and role != ''">
+			AND t1.role = #{role}
+		</if>
+		<!-- Task.79 -->
+		<if test="leaveFlg != null and leaveFlg == 1">
+			AND t2.leave_flg = ${leaveFlg}
+		</if>
+		<!-- Task.79 -->
+		<if test="pastDate != null">
+			AND t6.close_time >= #{pastDate}
+		</if>
+		ORDER BY t1.lms_user_id
+	</select>
+
+	<!-- Task.50 -->
+	<select id="getUserDailyReportDto" resultType="jp.co.sss.lms.dto.UserDailyReportDto">
+		SELECT
+			t1.lms_user_id,
+			t1.user_id,
+			t2.user_name,
+			t2.account_id,
+			t4.company_id,
+			t4.company_name,
+			t6.place_id,
+			t6.place_name,
+			t6.place_note,
+			t8.course_id,
+			t8.course_name,
+			t9.section_id,
+			t9.section_name,
+			t9.date AS section_date,
+			t12.daily_report_id,
+			t12.report_name,
+			t13.daily_report_submit_id,
+			t13.date AS submit_date,
+			(SELECT COUNT(*) FROM t_daily_report_fb t14 
+				WHERE t14.daily_report_submit_id = t13.daily_report_submit_id 
+				AND t14.delete_flg = #{deleteFlg}) AS fb_count
+		FROM m_lms_user t1
+			INNER JOIN m_user t2 ON t2.user_id = t1.user_id AND t2.delete_flg = #{deleteFlg}
+			INNER JOIN t_user_company t3 ON t3.lms_user_id = t1.lms_user_id AND t3.delete_flg = #{deleteFlg}
+			INNER JOIN m_company t4 ON t4.company_id = t3.company_id AND t4.delete_flg = #{deleteFlg}
+			INNER JOIN t_user_place t5 ON t5.lms_user_id = t1.lms_user_id AND t5.delete_flg = #{deleteFlg}
+			INNER JOIN m_place t6 ON t6.place_id = t5.place_id AND t6.delete_flg = #{deleteFlg}
+			INNER JOIN t_course_user t7 ON t7.lms_user_id = t1.lms_user_id AND t7.delete_flg = #{deleteFlg}
+			INNER JOIN m_course t8 ON t8.course_id = t7.course_id AND t8.delete_flg = #{deleteFlg}
+			INNER JOIN m_section t9 ON t9.course_id = t8.course_id AND t9.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_course_daily_report t10 ON t10.course_id = t8.course_id AND t10.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_section_daily_report t11 ON t11.section_id = t9.section_id AND t11.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_daily_report t12 ON (t12.daily_report_id = t10.daily_report_id OR t12.daily_report_id = t11.daily_report_id)
+				AND t12.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_daily_report_submit t13 ON t13.lms_user_id = t1.lms_user_id AND t13.date = t9.date 
+				AND t13.daily_report_id = t12.daily_report_id AND t13.delete_flg = #{deleteFlg}
+		WHERE t1.role = #{role}
+			AND t9.date <![CDATA[ >= ]]> #{dateFrom}
+			AND t9.date <![CDATA[ <= ]]> #{dateTo}
+			<if test="courseName != null">
+				AND t8.course_name LIKE '%${courseName}%'
+			</if>
+			<if test="placeId != null and placeId != ''">
+				AND t6.place_id = #{placeId}
+			</if>
+			<if test="companyName != null">
+				AND t4.company_name LIKE '%${companyName}%'
+			</if>
+			<if test="pastDate != null">
+				AND t8.close_time >= #{pastDate}
+			</if>
+			AND t1.delete_flg = #{deleteFlg}
+		ORDER BY t13.date ASC
+	</select>
+
+	<!-- Task.52 -->
+	<resultMap type="jp.co.sss.lms.dto.LmsUserDto" id="lmsUserDto">
+		<id column="lms_user_id" property="userDetailDto.lmsUserId" />
+		<result column="user_id" property="userDetailDto.userId" />
+		<result column="user_name" property="userDetailDto.userName" />
+		<result column="role" property="userDetailDto.role" />
+		<result column="course_name" property="userDetailDto.courseName" />
+		<result column="company_name" property="userDetailDto.companyName" />
+		<result column="place_name" property="userDetailDto.placeName" />
+		<result column="place_note" property="userDetailDto.placeNote" />
+		<collection property="examResultDtoList" ofType="jp.co.sss.lms.dto.ExamResultDto">
+			<result column="exam_id" property="examId" />
+			<result column="exam_result_id" property="examResultId" />
+			<result column="exam_section_id" property="examSectionId" />
+			<result column="score" property="score" />
+		</collection>
+	</resultMap>
+	<select id="getLmsUserDto" resultMap="lmsUserDto">
+		SELECT
+			t1.lms_user_id,
+			t2.user_id,
+			t2.user_name,
+			t1.role,
+			t4.course_name,
+			t6.company_name,
+			t8.place_name,
+			t8.place_note,
+			t10.exam_id,
+			t9.exam_result_id,
+			t10.exam_section_id,
+			t9.score
+		FROM m_lms_user t1
+			LEFT OUTER JOIN m_user t2 ON t2.user_id = t1.user_id AND t2.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_course_user t3 ON t3.lms_user_id = t1.lms_user_id AND t3.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_course t4 ON t4.course_id = t3.course_id AND t4.delete_flg = #{deleteFlg}
+				<if test="courseId != null">
+					AND t4.course_id = ${courseId}
+				</if>
+			LEFT OUTER JOIN t_user_company t5 ON t5.lms_user_id = t1.lms_user_id AND t5.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_company t6 ON t6.company_id = t5.company_id AND t6.delete_flg = #{deleteFlg}
+				<if test="companyId != null">
+					AND t6.company_id = ${companyId}
+				</if>
+			LEFT OUTER JOIN t_user_place t7 ON t7.lms_user_id = t1.lms_user_id AND t7.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_place t8 ON t8.place_id = t7.place_id AND t8.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_exam_result t9 ON t9.lms_user_id = t1.lms_user_id AND t9.mark_flg = 1 AND t9.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN t_exam_section t10 ON t10.exam_section_id = t9.exam_section_id
+				AND t10.exam_id = #{examId} AND t10.delete_flg = #{deleteFlg}
+		WHERE t8.place_id = #{placeId}
+			AND t1.role = #{role}
+			AND t1.delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.67 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.MLmsUser" useGeneratedKeys="true" keyProperty="lmsUserId">
+		INSERT INTO m_lms_user
+		(
+			user_id,
+			role,
+			admin_flg,
+			account_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date,
+			hope_via_traning,
+			programming_experience
+		) VALUES (
+			#{userId},
+			#{role},
+			#{adminFlg},
+			#{accountId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate},
+			#{hopeViaTraning},
+			#{programmingExperience}
+		)
+	</insert>
+
+	<!-- Task.68 -->
+	<select id="getStudentUserDetailForSearch" resultType="jp.co.sss.lms.dto.UserDetailDto">
+		SELECT
+			t1.lms_user_id,
+			t1.user_id,
+			t2.user_name,
+			t1.role,
+			t2.login_id,
+			t4.company_name,
+			t6.course_id,
+			t6.course_name,
+			t8.place_name,
+			t8.place_note,
+			t8.place_description,
+			t1.account_id,
+			t2.leave_flg,
+			t2.leave_date
+		FROM m_lms_user t1
+			INNER JOIN m_user t2 ON t1.user_id = t2.user_id
+			LEFT OUTER JOIN t_user_company t3 ON t1.lms_user_id = t3.lms_user_id
+			LEFT OUTER JOIN m_company t4 ON t3.company_id = t4.company_id
+			LEFT OUTER JOIN t_course_user t5 ON t1.lms_user_id = t5.lms_user_id
+			LEFT OUTER JOIN m_course t6 ON t5.course_id = t6.course_id
+			LEFT OUTER JOIN t_user_place t7 ON t1.lms_user_id = t7.lms_user_id
+			LEFT OUTER JOIN m_place t8 ON t7.place_id = t8.place_id
+		WHERE t1.delete_flg = #{deleteFlg}
+		<if test="role != null and role != ''">
+			AND t1.role = #{role}
+		</if>
+		<if test="companyName != null and companyName != ''">
+			AND t4.company_name LIKE '%${companyName}%'
+		</if>
+		<if test="userName != null and userName != ''">
+			AND t2.user_name LIKE '%${userName}%'
+		</if>
+		<if test="pastDate != null">
+			AND t6.close_time >= #{pastDate}
+		</if>
+	</select>
+
+	<!-- Task.69 -->
+	<update id="update" parameterType="jp.co.sss.lms.entity.MLmsUser">
+		UPDATE m_lms_user
+		SET
+			hope_via_traning = #{hopeViaTraning},
+			programming_experience = #{programmingExperience},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE lms_user_id = #{lmsUserId}
+	</update>
+
+	<!-- Task.70 -->
+	<select id="getCompanyUserDetailForSearch" resultType="jp.co.sss.lms.dto.UserDetailDto">
+		SELECT
+			t1.lms_user_id,
+			t1.user_id,
+			t2.user_name,
+			t1.role,
+			t2.login_id,
+			t4.company_name,
+			t1.account_id
+		FROM m_lms_user t1
+			INNER JOIN m_user t2 ON t1.user_id = t2.user_id
+			LEFT OUTER JOIN t_user_company t3 ON t1.lms_user_id = t3.lms_user_id
+			LEFT OUTER JOIN m_company t4 ON t3.company_id =t4.company_id
+		WHERE t1.delete_flg = #{deleteFlg}
+		<if test="companyName != null and companyName != ''">
+			AND t4.company_name LIKE '%${companyName}%'
+		</if>
+		<if test="role != null and role != ''">
+			AND NOT  <![CDATA[(]]>t1.role = #{role}<![CDATA[)]]>
+		</if>
+	</select>
+
+	<!-- Task.70 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.MLmsUser">
+		UPDATE m_lms_user
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE lms_user_id = #{lmsUserId}
+	</update>
+
+	<!-- Task.79 -->
+	<select id="findByLmsUserId" resultType="jp.co.sss.lms.entity.MLmsUser">
+		SELECT * 
+		FROM m_lms_user
+		WHERE lms_user_id = #{lmsUserId}
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MHolidayMapper">
+
+	<!-- Task.86 -->
+	<select id="findByHolidayDate" resultType="jp.co.sss.lms.entity.MHoliday">
+		SELECT * FROM m_holiday
+		WHERE
+		TO_CHAR(holiday_date, 'yyyy-MM') = #{startDate}
+		AND delete_flg = #{deleteFlg}
+		ORDER BY holiday_date ASC
+	</select>
+
+	<!-- Task.86 -->
+	<delete id="delete">
+		DELETE FROM m_holiday
+		WHERE holiday_id = #{holidayId}
+	</delete>
+
+	<!-- Task.86 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.MHoliday" useGeneratedKeys="true" keyProperty="holidayId">
+		INSERT INTO m_holiday (
+			holiday_name,
+			holiday_date,
+			account_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{holidayName},
+			#{holidayDate},
+			#{accountId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+	<!-- Task.115 -->
+	<select id="findByHolidayStartAndEndDate" resultType="jp.co.sss.lms.entity.MHoliday">
+		SELECT * 
+		FROM m_holiday
+		WHERE delete_flg = #{deleteFlg}
+    		AND holiday_date BETWEEN #{startDate} AND #{endDate}
+		ORDER BY holiday_date ASC
+	</select>
+
+</mapper>

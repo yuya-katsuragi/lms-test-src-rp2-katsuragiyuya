@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TFssShareAvailableMapper">
+	<resultMap type="jp.co.sss.lms.dto.ShareUserDto" id="shareUserDto">
+		<id column="share_fss_user_id" property="fssUserId" />
+		<result column="nickname" property="nickname" />
+		<result column="share_user_name" property="shareUserName" />
+		<collection property="groupNameList"
+			ofType="String">
+			<result column="group_name" />
+		</collection>
+	</resultMap>
+	<select id="getShareUserDtoList"
+		resultMap="shareUserDto">
+		SELECT
+		t1.share_fss_user_id,
+		t3.group_name,
+		t4.nickname,
+		t6.user_name AS share_user_name
+		FROM t_fss_share_available t1
+		INNER JOIN
+		t_fss_user_group t2 ON t2.fss_user_id = t1.share_fss_user_id
+		INNER JOIN
+		m_fss_group t3 ON t3.fss_group_id = t2.fss_group_id
+		INNER JOIN
+		m_fss_user t4 ON t4.fss_user_id = t1.share_fss_user_id
+		INNER JOIN
+		t_user_fss_user t5 ON t5.fss_user_id = t1.share_fss_user_id
+		INNER JOIN
+		m_user t6 ON t6.user_id = t5.user_id
+		WHERE t1.fss_user_id =
+		#{fssUserId} AND t1.share_fss_user_id != #{fssUserId} AND
+		t1.delete_flg = #{deleteFlg}
+	</select>
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TMailQueMapper">
+
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.TMailQue" useGeneratedKeys="true" keyProperty="mailQueId">
+		INSERT INTO t_mail_que (
+			mail_address_to,
+			mail_address_cc,
+			mail_address_bcc,
+			subject,
+			body,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{mailAddressTo},
+			#{mailAddressCc},
+			#{mailAddressBcc},
+			#{subject},
+			#{body},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+	<!-- Task.94 -->
+	<select id="getMailQueDtoList" resultType="jp.co.sss.lms.dto.MailQueDto">
+		SELECT
+			mail_que_id,
+			mail_address_to,
+			mail_address_cc,
+			mail_address_bcc,
+			subject,
+			body,
+			first_create_date
+		FROM t_mail_que
+		WHERE delete_flg = #{deleteFlg}
+		ORDER BY mail_que_id DESC
+	</select>
+
+	<!-- Task.94 -->
+	<select id="findByMailQueId" resultType="jp.co.sss.lms.entity.TMailQue">
+		SELECT * FROM t_mail_que
+		WHERE mail_que_id = #{mailQueId} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.94 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.TMailQue">
+		UPDATE t_mail_que
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE mail_que_id = #{mailQueId} 
+			AND delete_flg = 0
+	</update>
+
+</mapper>

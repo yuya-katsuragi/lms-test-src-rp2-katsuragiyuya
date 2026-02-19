@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TDeliverablesSectionMapper">
+	<select id="getDeliverablesWithSubmissionFlgDtoList"
+		resultType="jp.co.sss.lms.dto.DeliverablesWithSubmissionFlgDto">
+		SELECT
+		t2.deliverables_id,
+		t1.deliverables_section_id,
+		t2.deliverables_name,
+		t2.note,
+		t1.submission_deadline,
+		CASE WHEN t3.deliverables_result_id IS NULL THEN '0' ELSE '1' END AS submission_flg
+		FROM t_deliverables_section t1
+		INNER JOIN m_deliverables t2
+		ON t2.deliverables_id = t1.deliverables_id AND t2.delete_flg = #{deleteFlg}
+		LEFT OUTER JOIN (SELECT deliverables_result_id, deliverables_section_id FROM t_deliverables_result WHERE lms_user_id = #{lmsUserId} AND delete_flg = #{deleteFlg}) t3
+		ON t3.deliverables_section_id = t1.deliverables_section_id
+		WHERE
+		t1.section_id = #{sectionId}
+		AND t1.delete_flg = #{deleteFlg}
+		ORDER BY t2.deliverables_name
+	</select>
+</mapper>

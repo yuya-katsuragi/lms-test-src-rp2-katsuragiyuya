@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TMailQueFileMapper">
+
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.TMailQueFile" useGeneratedKeys="true" keyProperty="mailQueFileId">
+		INSERT INTO t_mail_que_file (
+			mail_que_id,
+			file_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{mailQueId},
+			#{fileId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+	<!-- Task.94 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.TMailQueFile">
+		UPDATE t_mail_que_file
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE mail_que_id = #{mailQueId} 
+			AND delete_flg = 0
+	</update>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MMeetingScheduleDetailMapper">
+
+	<!-- Task.73 -->
+	<select id="getTakeOverScheduleDetailDtoList" resultType="jp.co.sss.lms.dto.TakeOverScheduleDetailDto">
+		SELECT
+			t1.meeting_schedule_detail_id,
+			t1.meeting_date,
+			t1.meeting_time,
+			t2.meeting_company_id,
+			t2.company_id,
+			t2.join_amount,
+			t2.company_request
+		FROM m_meeting_schedule_detail t1
+			LEFT OUTER JOIN t_meeting_company t2 ON t2.meeting_schedule_detail_id = t1.meeting_schedule_detail_id AND t2.delete_flg = #{deleteFlg}
+		WHERE t1.meeting_schedule_id = #{meetingScheduleId} 
+			AND t1.delete_flg = #{deleteFlg}
+		ORDER BY t1.meeting_schedule_detail_id ASC
+	</select>
+
+	<!-- Task.108 -->
+	<delete id="delete">
+		DELETE FROM m_meeting_schedule_detail
+		WHERE meeting_schedule_id = #{meetingScheduleId}
+	</delete>
+
+	<!-- Task.108 -->
+	<select id="getMeetingScheduleDetailCount" resultType="Integer">
+		SELECT COUNT(*) 
+		FROM m_meeting_schedule_detail
+		WHERE meeting_schedule_id = #{meetingScheduleId} 
+			AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.111 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.MMeetingScheduleDetail" useGeneratedKeys="true" keyProperty="meetingScheduleDetailId">
+		INSERT INTO m_meeting_schedule_detail
+		(
+			meeting_schedule_id,
+			meeting_date,
+			meeting_time,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		)
+		VALUES
+		(
+			#{meetingScheduleId},
+			#{meetingDate},
+			#{meetingTime},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+</mapper>

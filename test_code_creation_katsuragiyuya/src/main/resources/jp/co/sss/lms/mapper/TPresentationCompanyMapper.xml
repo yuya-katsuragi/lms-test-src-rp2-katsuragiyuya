@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TPresentationCompanyMapper">
+
+	<!-- Task.76 -->
+	<update id="update" parameterType="jp.co.sss.lms.entity.TPresentationCompany" useGeneratedKeys="true" keyProperty="presentationCompanyId">
+		UPDATE t_presentation_company
+		SET
+			join_able_flg = #{joinAbleFlg},
+			join_amount = #{joinAmount},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate},
+			join_name = #{joinName}
+		WHERE presentation_company_id = #{presentationCompanyId}
+			AND delete_flg = #{deleteFlg}
+	</update>
+
+</mapper>

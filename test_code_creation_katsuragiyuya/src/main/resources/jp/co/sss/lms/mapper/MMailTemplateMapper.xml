@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MMailTemplateMapper">
+
+	<!-- Task.92 -->
+	<select id="getMailTemplateDtoList" resultType="jp.co.sss.lms.dto.MailTemplateDto">
+		SELECT
+			mail_template_id,
+			subject,
+			mail_templete_note
+		FROM m_mail_template
+		WHERE delete_flg = #{deleteFlg}
+		ORDER BY mail_template_id ASC
+	</select>
+
+	<!-- Task.93 -->
+	<resultMap type="jp.co.sss.lms.dto.MailTemplateDto" id="mailTemplateDto">
+		<id column="mail_template_id" property="mailTemplateId" />
+		<result column="subject" property="subject" />
+		<result column="body" property="body" />
+		<result column="mail_templete_note" property="mailTempleteNote" />
+		<collection property="fileDtoList" ofType="jp.co.sss.lms.dto.FileDto">
+			<result column="file_id" property="fileId" />
+			<result column="file_name" property="fileName" />
+			<result column="file_path" property="filePath" />
+		</collection>
+	</resultMap>
+	<select id="getMailTemplateDto" resultMap="mailTemplateDto">
+		SELECT
+			t1.mail_template_id,
+			t1.subject,
+			t1.body,
+			t1.mail_templete_note,
+			t3.file_id,
+			t3.file_name,
+			t3.file_path
+		FROM m_mail_template t1
+			LEFT OUTER JOIN t_file_mail_template t2
+				ON t2.mail_template_id = t1.mail_template_id AND t2.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_file t3
+				ON t3.file_id = t2.file_id AND t3.delete_flg = #{deleteFlg}
+		WHERE t1.mail_template_id = #{mailTemplateId} 
+			AND t1.delete_flg = #{deleteFlg}
+	</select>
+
+</mapper>

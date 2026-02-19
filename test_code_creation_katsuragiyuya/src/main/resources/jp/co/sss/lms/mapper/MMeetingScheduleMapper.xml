@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MMeetingScheduleMapper">
+
+	<!-- Task.59 -->
+	<select id="getTakeOverScheduleDtoList" resultType="jp.co.sss.lms.dto.TakeOverScheduleDto">
+		SELECT
+			t1.meeting_schedule_id,
+			t1.purpose,
+			t1.meeting_open_date,
+			t1.meeting_close_date,
+			t1.edit_limit,
+			t2.meeting_place_id,
+			t3.place_id,
+			t3.place_name,
+			t3.place_description,
+			t3.place_note,
+			<!-- Task.108 公開フラグ、予約フラグを追加 -->
+            t2.published_flg,
+            CASE WHEN t4.reserve_count IS NULL THEN 0 ELSE 1 END AS reserved_flg
+		FROM m_meeting_schedule t1
+			LEFT OUTER JOIN t_meeting_place t2 ON t2.meeting_schedule_id = t1.meeting_schedule_id AND t2.delete_flg = #{deleteFlg}
+			LEFT OUTER JOIN m_place t3 ON t3.place_id = t2.place_id AND t3.delete_flg = #{deleteFlg}
+			<!-- Task.108 -->
+            LEFT OUTER JOIN (SELECT meeting_place_id, COUNT(*) AS reserve_count FROM t_meeting_company WHERE delete_flg = #{deleteFlg}
+    			AND meeting_schedule_detail_id IS NOT NULL GROUP BY meeting_place_id) t4 ON t4.meeting_place_id = t2.meeting_place_id
+		WHERE t1.delete_flg = #{deleteFlg}
+			<!-- Task.108 -->
+			<if test="placeId != null and placeId != ''">
+				AND t2.place_id = #{placeId}
+			</if>
+			<if test="publishedFlg != null">
+				AND t2.published_flg = #{publishedFlg}
+			</if>
+		ORDER BY t1.meeting_open_date ASC
+	</select>
+
+	<!-- Task.108 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.MMeetingSchedule">
+		UPDATE m_meeting_schedule
+		SET
+			delete_flg = #{deleteFlg},
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE meeting_schedule_id = #{meetingScheduleId}
+	</update>
+
+	<!-- Task.110 -->
+	<select id="getTakeOverScheduleDto" resultType="jp.co.sss.lms.dto.TakeOverScheduleDto">
+		SELECT
+			meeting_schedule_id,
+			purpose,
+			meeting_open_date,
+			meeting_close_date,
+			edit_limit
+		FROM m_meeting_schedule
+		WHERE meeting_schedule_id = #{meetingScheduleId}
+				AND delete_flg = #{deleteFlg}
+	</select>
+
+	<!-- Task.110 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.MMeetingSchedule" useGeneratedKeys="true" keyProperty="meetingScheduleId">
+		INSERT INTO m_meeting_schedule
+		(
+			purpose,
+			meeting_open_date,
+			meeting_close_date,
+			edit_limit,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		)
+		VALUES
+		(
+			#{purpose},
+			#{meetingOpenDate},
+			#{meetingCloseDate},
+			#{editLimit},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+</mapper>

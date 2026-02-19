@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.TMeetingDetailMapper">
+
+	<!-- Task.46 -->
+	<update id="updateDeleteFlg" parameterType="jp.co.sss.lms.entity.TMeetingDetail">
+		UPDATE t_meeting_detail
+		SET
+			delete_flg = 1,
+			last_modified_user = #{lastModifiedUser},
+			last_modified_date = #{lastModifiedDate}
+		WHERE meeting_id = #{meetingId}
+			AND delete_flg = 0
+	</update>
+
+	<!-- Task.47 -->
+	<select id="getMeetingDetailDtoList" resultType="jp.co.sss.lms.dto.MeetingDetailDto">
+		SELECT
+			t1.meeting_detail_id,
+			t1.meeting_id,
+			t1.question,
+			t1.answer,
+			t1.follow,
+			t1.question_type
+		FROM t_meeting_detail t1
+		WHERE t1.meeting_id = #{meetingId}
+			AND t1.delete_flg = #{deleteFlg}
+		ORDER BY t1.first_create_date ASC
+	</select>
+
+	<!-- Task.47 -->
+	<delete id="delete">
+		DELETE FROM t_meeting_detail
+		WHERE meeting_id = #{meetingId}
+	</delete>
+
+	<!-- Task.47 -->
+	<insert id="insert" parameterType="jp.co.sss.lms.entity.TMeetingDetail" useGeneratedKeys="true" keyProperty="meetingDetailId">
+		INSERT INTO t_meeting_detail (
+			meeting_id,
+			question,
+			answer,
+			follow,
+			question_type,
+			account_id,
+			delete_flg,
+			first_create_user,
+			first_create_date,
+			last_modified_user,
+			last_modified_date
+		) VALUES (
+			#{meetingId},
+			#{question},
+			#{answer},
+			#{follow},
+			#{questionType},
+			#{accountId},
+			#{deleteFlg},
+			#{firstCreateUser},
+			#{firstCreateDate},
+			#{lastModifiedUser},
+			#{lastModifiedDate}
+		)
+	</insert>
+
+</mapper>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.co.sss.lms.mapper.MPresentationScheduleMapper">
+
+	<!-- Task.60 -->
+	<resultMap type="jp.co.sss.lms.dto.PresentationDto" id="pesentationDto">
+		<id column="presentation_schedule_id" property="presentationScheduleId" />
+		<result column="edit_limit" property="editLimit" />
+		<result column="presentation_date" property="presentationDate" />
+		<result column="purpose" property="purpose" />
+		<result column="place_id" property="placeId" />
+		<result column="place_name" property="placeName" />
+		<result column="place_description" property="placeDescription" />
+		<result column="place_note" property="placeNote" />
+		<collection property="presentationDetailDtoList" ofType="jp.co.sss.lms.dto.PresentationDetailDto">
+			<result column="presentation_company_id" property="presentationCompanyId" />
+			<result column="join_able_flg" property="joinAbleFlg" />
+		</collection>
+	</resultMap>
+	<select id="getPresentationDtoList" resultMap="pesentationDto">
+		SELECT
+			t1.presentation_schedule_id,
+			t1.edit_limit,
+			t1.presentation_date,
+			t1.purpose,
+			t2.place_id,
+			t3.place_name,
+			t3.place_description,
+			t3.place_note
+			<if test="companyId != null and companyId !='' ">
+			,t5.presentation_company_id
+			,t5.join_able_flg
+			</if>
+		FROM m_presentation_schedule t1
+			LEFT OUTER JOIN t_presentation_place t2 ON t1.presentation_schedule_id = t2.presentation_schedule_id
+			LEFT OUTER JOIN m_place t3 ON t2.place_id = t3.place_id
+			LEFT OUTER JOIN m_presentation_team t4 ON t2.presentation_place_id = t4.presentation_place_id
+			<if test="companyId != null and companyId !='' ">
+			LEFT OUTER JOIN t_presentation_company t5 ON t4.presentation_team_id = t5.presentation_team_id
+			</if>
+		WHERE t1.delete_flg = #{deleteFlg} AND t2.published_flg = #{publishedFlg}
+			<if test="placeId != null and placeId !='' ">
+			AND t2.place_id =#{placeId}
+			</if>
+			<if test="companyId != null and companyId !='' ">
+			AND t5.company_id = #{companyId};
+			</if>
+	</select>
+
+	<!-- Task.61 -->
+	<resultMap type="jp.co.sss.lms.dto.PresentationDto" id="presentationDetailDto">
+		<id column="presentation_schedule_id" property="presentationScheduleId" />
+		<result column="edit_limit" property="editLimit" />
+		<result column="presentation_date" property="presentationDate" />
+		<result column="purpose" property="purpose" />
+		<result column="place_id" property="placeId" />
+		<result column="place_name" property="placeName" />
+		<result column="place_description" property="placeDescription" />
+		<result column="place_note" property="placeNote" />
+		<collection property="presentationDetailDtoList" ofType="jp.co.sss.lms.dto.PresentationDetailDto">
+			<result column="presentation_time" property="presentationTime" />
+			<result column="presentation_team_id" property="presentationTeamId" />
+			<result column="presentation_company_id" property="presentationCompanyId" />
+			<result column="company_id" property="companyId" />
+			<result column="company_name" property="companyName" />
+			<result column="address" property="address" />
+			<result column="join_able_flg" property="joinAbleFlg" />
+			<result column="join_amount" property="joinAmount" />
+			<result column="join_name" property="joinName" />
+		</collection>
+	</resultMap>
+	<select id="getReserveDetail" resultMap="presentationDetailDto">
+		SELECT
+			t1.presentation_schedule_id,
+			t1.edit_limit,
+			t1.presentation_date,
+			t1.purpose,
+			t2.place_id,
+			t3.place_name,
+			t3.place_description,
+			t3.place_note,
+			t4.presentation_time,
+			t5.presentation_team_id,
+			t6.presentation_company_id,
+			t6.join_able_flg,
+			t6.join_amount,
+			t6.join_name,
+			t7.company_id,
+			t7.company_name,
+			t7.address
+		FROM m_presentation_schedule t1
+			LEFT OUTER JOIN t_presentation_place t2 ON t2.presentation_schedule_id = t1.presentation_schedule_id
+			LEFT OUTER JOIN m_place t3 ON t3.place_id = t2.place_id
+			LEFT OUTER JOIN m_presentation_schedule_detail t4 ON t4.presentation_schedule_id = t1.presentation_schedule_id
+			LEFT OUTER JOIN m_presentation_team t5 ON t5.presentation_schedule_detail_id = t4.presentation_schedule_detail_id
+			LEFT OUTER JOIN t_presentation_company t6 ON t6.presentation_team_id = t5.presentation_team_id
+			LEFT OUTER JOIN m_company t7 ON t7.company_id = t6.company_id
+		WHERE t1.delete_flg = #{deleteFlg} 
+			AND t1.presentation_schedule_id =#{presentationScheduleId}
+			<if test="companyId != null and companyId !='' ">
+			AND t7.company_id = #{companyId}
+			</if>
+		ORDER BY t4.presentation_time ASC
+	</select>
+
+	<!-- Task.63 -->
+	<resultMap type="jp.co.sss.lms.dto.PresentationDto" id="presentationTeamDetailDto">
+		<id column="presentation_schedule_id" property="presentationScheduleId" />
+		<result column="edit_limit" property="editLimit" />
+		<result column="presentation_date" property="presentationDate" />
+		<result column="purpose" property="purpose" />
+		<result column="place_id" property="placeId" />
+		<result column="place_name" property="placeName" />
+		<result column="place_description" property="placeDescription" />
+		<result column="place_note" property="placeNote" />
+		<collection property="presentationTeamDetailDtoList" ofType="jp.co.sss.lms.dto.PresentationTeamDetailDto">
+			<result column="presentation_team_id" property="presentationTeamId" />
+			<result column="presentation_team_name" property="presentationTeamName" />
+			<result column="company_id" property="companyId" />
+			<result column="company_name" property="companyName" />
+			<result column="address" property="address" />
+			<result column="user_id" property="userId" />
+			<result column="user_name" property="userName" />
+		</collection>
+	</resultMap>
+	<select id="getPresentationTeamDetailDtoList" resultMap="presentationTeamDetailDto">
+		SELECT
+			t1.presentation_schedule_id,
+			t1.edit_limit,
+			t1.presentation_date,
+			t1.purpose,
+			t3.presentation_team_id,
+			t3.presentation_team_name,
+			t5.company_id,
+			t5.company_name,
+			t5.address,
+			t8.user_id,
+			t8.user_name,
+			t9.place_id,
+			t10.place_name,
+			t10.place_description,
+			t10.place_note
+		FROM m_presentation_schedule t1
+			LEFT OUTER JOIN m_presentation_schedule_detail t2 ON t2.presentation_schedule_id = t1.presentation_schedule_id
+			LEFT OUTER JOIN m_presentation_team t3 ON t3.presentation_schedule_detail_id = t2.presentation_schedule_detail_id
+			LEFT OUTER JOIN	t_presentation_company t4 ON t4.presentation_team_id = t3.presentation_team_id
+			LEFT OUTER JOIN m_company t5 ON t5.company_id = t4.company_id
+			LEFT OUTER JOIN t_user_presentation_team t6 ON t6.presentation_team_id = t3.presentation_team_id
+			LEFT OUTER JOIN m_lms_user t7 ON t7.lms_user_id = t6.lms_user_id
+	        LEFT OUTER JOIN m_user t8 ON t8.user_id = t7.user_id
+	        LEFT OUTER JOIN t_presentation_place t9 ON t9.presentation_schedule_id = t1.presentation_schedule_id
+			LEFT OUTER JOIN m_place t10 ON t10.place_id = t9.place_id
+		WHERE t1.delete_flg = #{deleteFlg}
+			AND t1.presentation_schedule_id =#{presentationScheduleId}
+			<if test="presentationTeamId != null and presentationTeamId != ''">
+			AND t3.presentation_team_id = #{presentationTeamId}
+			</if>
+		ORDER BY t3.presentation_team_id ASC
+	</select>
+
+	<!-- Task.75 -->
+	<select id="notReserveCheck" resultType="Integer">
+		SELECT 
+			COUNT(*)
+		FROM m_presentation_schedule t1
+			LEFT OUTER JOIN t_presentation_place t2 ON t1.presentation_schedule_id = t2.presentation_schedule_id
+			LEFT OUTER JOIN m_place t3 ON t2.place_id =	t3.place_id
+			LEFT OUTER JOIN m_presentation_team t4 ON t2.presentation_place_id = t4.presentation_place_id
+			LEFT OUTER JOIN t_presentation_company t5 ON t4.presentation_team_id = t5.presentation_team_id
+		WHERE t1.delete_flg = #{deleteFlg}
+			AND t2.published_flg = #{publishedFlg}
+			<if test="placeId != null and placeId !='' ">
+			AND t2.place_id =#{placeId}
+			</if>
+			<if test="companyId != null and companyId !='' ">
+			AND t5.company_id = #{companyId}
+			</if>
+			<if test="nextDay != null ">
+			AND t1.edit_limit BETWEEN #{today} AND #{nextDay}
+			</if>
+			<if test="joinAbleFlg != null and joinAbleFlg !='' ">
+			AND (t5.join_able_flg =#{joinAbleFlg} OR t5.join_able_flg IS NULL);
+			</if>
+	</select>
+
+</mapper>
