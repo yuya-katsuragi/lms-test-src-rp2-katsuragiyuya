@@ -34,27 +34,16 @@ public class Case01 {
 		closeDriver();
 	}
 
-	/**
-	 * Case.1_1 ログインコントローラー試験　初期表示テスト(未ログイン時 正常終了)
-	 * ■対象メソッド：index() 
-	 * ■試験パラメータ：なし
-	 * ■試験観点：
-	 *  ・正常終了すること
-	 *  ・HTTPステータスが「200」であること
-	 *  ・返却されるViewのパスが「/login/index」であること
-	 *  
-	 * @throws Exception 
-	 * */
 	@Test
 	@Order(1)
 	@DisplayName("テスト01 トップページURLでアクセス")
 	void test01() {
 		goTo("http://localhost:8080/lms/");
-		
+
 		assertEquals("ログイン | LMS", webDriver.getTitle());
 
 		getEvidence(new Object() {
-		}, "loginDisplay");
+		}, "topPageAccess");
 	}
 
 }
