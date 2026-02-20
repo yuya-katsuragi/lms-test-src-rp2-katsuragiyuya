@@ -36,12 +36,9 @@ local.properties
 hs_err_pid*
 replay_pid*
 
-# Maven artifacts
-pom.xml
-/target/
-
 # Eclipse artifacts, including WTP generated manifests
 .classpath
 .project
 .springBeans
 spring-*/src/main/java/META-INF/MANIFEST.MF
+/target/
