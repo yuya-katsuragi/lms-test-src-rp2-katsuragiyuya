@@ -14,8 +14,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import jp.co.sss.lms.ct.util.WebDriverUtils;
-
 /**
  * 結合テスト ログイン機能①
  * ケース02
@@ -55,9 +53,8 @@ public class Case02 {
 	@Order(2)
 	@DisplayName("テスト02 DBに登録されていないユーザーでログイン")
 	void test02() {
-		WebDriverUtils utils = new WebDriverUtils(WebDriverUtils.webDriver);
 
-		utils.login("StudentAA01111", "StudentAA01");
+		login("StudentAA01111", "StudentAA01");
 
 		WebElement errorMsg = webDriver.findElement(By.cssSelector(
 				"span.help-inline.error"));
