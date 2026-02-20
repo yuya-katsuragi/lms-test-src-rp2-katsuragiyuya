@@ -27,8 +27,6 @@ public class WebDriverUtils {
 	/** Webドライバ */
 	public static WebDriver webDriver;
 
-	public static LoginPage loginPage;
-
 	/**
 	 * インスタンス取得
 	 * @return Webドライバ
@@ -36,7 +34,7 @@ public class WebDriverUtils {
 	public static void createDriver() {
 		System.setProperty("webdriver.chrome.driver", "lib/chromedriver.exe");
 		webDriver = new ChromeDriver();
-		loginPage = new LoginPage(webDriver);
+
 	}
 
 	/**
@@ -120,29 +118,29 @@ public class WebDriverUtils {
 		}
 	}
 
-	public static class LoginPage {
+	//要素の定義（フィールドとして定義
+	@FindBy(id = "loginId")
+	private WebElement loginIdFiled;
 
-		//要素の定義（フィールドとして定義
-		@FindBy(id = "loginId")
-		private WebElement loginIdFiled;
+	@FindBy(id = "password")
+	private WebElement passWordFiled;
 
-		@FindBy(id = "password")
-		private WebElement passWordFiled;
+	@FindBy(css = "input.btn-primary[value='ログイン']")
+	private WebElement loginButton;
 
-		@FindBy(css = "input.btn-primary[value='ログイン']")
-		private WebElement loginButton;
-
-		//コンストラクタ（初期化)
-		public LoginPage(WebDriver driver) {
-			PageFactory.initElements(driver, this);
-		}
-
-		//アクションメソッドを定義
-		public void login(String login, String password) {
-			loginIdFiled.sendKeys(login);
-			passWordFiled.sendKeys(password);
-			loginButton.click();
-		}
+	//コンストラクタ（初期化)
+	public WebDriverUtils(WebDriver driver) {
+		PageFactory.initElements(driver, this);
 	}
 
+	/**
+	 * アクションメソッド：ログイン操作
+	 * @param login    ログインID
+	 * @param password パスワード
+	 */
+	public void login(String loginId, String password) {
+		loginIdFiled.sendKeys(loginId);
+		passWordFiled.sendKeys(password);
+		loginButton.click();
+	}
 }
