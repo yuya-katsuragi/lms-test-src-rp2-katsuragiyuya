@@ -52,9 +52,9 @@ public class Case03 {
 
 		//loginメソッドを呼び出しid,password,ログインボタンを取得
 		login("StudentAA01", "StudentAA01a");
-
+		// 画面右上の「ようこそ」メッセージ要素を取得
 		WebElement welcomMsg = webDriver.findElement(By.xpath("//a[@href='/lms/user/detail']/small"));
-
+		// 取得したテキストが期待通り表示されているかを確認
 		assertEquals("ようこそ受講生ＡＡ１さん", welcomMsg.getText());
 
 		getEvidence(new Object() {
