@@ -3,6 +3,8 @@ package jp.co.sss.lms.ct.f02_faq;
 import static jp.co.sss.lms.ct.util.WebDriverUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.WindowType;
 
 /**
  * 結合テスト よくある質問機能
@@ -82,14 +83,14 @@ public class Case04 {
 	@Order(4)
 	@DisplayName("テスト04 「よくある質問」リンクからよくある質問画面を別タブに開く")
 	void test04() {
-		//「よくある質問」のリンク要素を特定し、hrefを取得
+		// 「よくある質問」のリンク要素を特定
 		WebElement commonQuestions = webDriver.findElement(By.xpath("//a[@href='/lms/faq']"));
-		String url = commonQuestions.getAttribute("href");
-		//ブラウザで新しいタブを作成し、制御をそのタブに切り替える
-		webDriver.switchTo().newWindow(WindowType.TAB);
-		//新しいタブで、先ほど取得したURLにアクセス
-		webDriver.get(url);
-		//遷移先のタイトルが期待通りで表示されているか確認
+		// リンクをクリック（target="_blank" により新しいタブが開く）
+		commonQuestions.click();
+		// ウィンドウハンドルを取得
+		ArrayList<String> tabs = new ArrayList<>(webDriver.getWindowHandles());
+		// 新しいタブに切り替え
+		webDriver.switchTo().window(tabs.get(1));
 		assertEquals("よくある質問 | LMS", webDriver.getTitle());
 
 		getEvidence(new Object() {
