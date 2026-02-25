@@ -60,7 +60,7 @@ public class Case05 {
 		assertEquals("ようこそ受講生ＡＡ１さん", welcomMsg.getText());
 
 		getEvidence(new Object() {
-		}, "login Successful");
+		}, "loginSuccessful");
 	}
 
 	@Test
@@ -113,13 +113,20 @@ public class Case05 {
 
 		getEvidence(new Object() {
 		}, "KeywordSearch");
+
+		//JSを実行し、ページの最下部までスクロール
+		scrollBy("document.body.scrollHeight");
+
+		getEvidence(new Object() {
+		}, "Searchresults");
 	}
 
 	@Test
 	@Order(6)
 	@DisplayName("テスト06 「クリア」ボタン押下で入力したキーワードを消去")
 	void test06() {
-
+		//JSを実行し、0を指定することで一番上に戻る
+		scrollBy("0");
 		//クリアボタンのクリック
 		webDriver.findElement(By.xpath("//input[@value='クリア']")).click();
 		//内容が空文字になっているか検証
