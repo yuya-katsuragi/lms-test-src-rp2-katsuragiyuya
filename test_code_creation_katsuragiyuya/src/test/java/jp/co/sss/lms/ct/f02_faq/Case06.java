@@ -59,7 +59,7 @@ public class Case06 {
 		assertEquals("ようこそ受講生ＡＡ１さん", welcomMsg.getText());
 
 		getEvidence(new Object() {
-		}, "login Successful");
+		}, "loginSuccessful");
 	}
 
 	@Test
