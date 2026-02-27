@@ -125,7 +125,7 @@ public class Case08 {
 
 		//指定したタイトル文字列になるまで待機
 		titleTimeout("ユーザー詳細", 5);
-		//指定したタイトル文字列になるまで待機
+		//内容の比較
 		assertEquals("ユーザー詳細", webDriver.getTitle());
 
 		scrollBy("document.body.scrollHeight");
