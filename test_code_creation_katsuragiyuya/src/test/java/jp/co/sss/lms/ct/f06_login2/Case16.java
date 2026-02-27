@@ -51,7 +51,7 @@ public class Case16 {
 	@DisplayName("テスト02 DBに初期登録された未ログインの受講生ユーザーでログイン")
 	void test02() {
 		//loginメソッドを呼び出しid,password,ログインボタンを取得
-		login("StudentAA05", "StudentAA05");
+		login("StudentAA03", "StudentAA03");
 		// 取得したテキストが期待通り表示されているかを確認
 		assertEquals("セキュリティ規約 | LMS", webDriver.getTitle());
 
@@ -77,6 +77,9 @@ public class Case16 {
 
 		//getEvidenceより後に押下することで正しいエビデンスを取得
 		webDriver.findElement(By.cssSelector("button.btn-primary")).click();
+
+		getEvidence(new Object() {
+		}, "passwordChangeScreen");
 
 	}
 
@@ -128,7 +131,7 @@ public class Case16 {
 	@Order(5)
 	@DisplayName("テスト05 20文字以上の変更パスワードを入力し「変更」ボタン押下")
 	void test05() {
-		String nowPassword = "StudentAA05";
+		String nowPassword = "StudentAA03";
 		//20文字以上のパスワードを設定
 		String overPassword = "Qwerasdfzxcv123456789";
 
@@ -171,15 +174,11 @@ public class Case16 {
 	@Order(6)
 	@DisplayName("テスト06 ポリシーに合わない変更パスワードを入力し「変更」ボタン押下")
 	void test06() {
-		String nowPassword = "StudentAA05";
+		String nowPassword = "StudentAA03";
 		// 大文字が含まれていない
 		String nonPolicyPassword = "a12345678";
 
 		pageLoadTimeout(5);
-		//入力されているパスワードを削除
-		webDriver.findElement(By.id("currentPassword")).clear();
-		webDriver.findElement(By.id("password")).clear();
-		webDriver.findElement(By.id("passwordConfirm")).clear();
 		//パスワードを入力
 		webDriver.findElement(By.id("currentPassword")).sendKeys(nowPassword);
 		webDriver.findElement(By.id("password")).sendKeys(nonPolicyPassword);
@@ -219,15 +218,10 @@ public class Case16 {
 	@DisplayName("テスト07 一致しない確認パスワードを入力し「変更」ボタン押下")
 	void test07() {
 
-		//入力されているパスワードを削除
-		webDriver.findElement(By.id("currentPassword")).clear();
-		webDriver.findElement(By.id("password")).clear();
-		webDriver.findElement(By.id("passwordConfirm")).clear();
-
 		//パスワードを入力（確認パスワードは意図的に異なる値を設定）
-		webDriver.findElement(By.id("currentPassword")).sendKeys("StudentAA05");
-		webDriver.findElement(By.id("password")).sendKeys("StudentAA05a");
-		webDriver.findElement(By.id("passwordConfirm")).sendKeys("StudentAA055");
+		webDriver.findElement(By.id("currentPassword")).sendKeys("StudentAA03");
+		webDriver.findElement(By.id("password")).sendKeys("StudentAA03a");
+		webDriver.findElement(By.id("passwordConfirm")).sendKeys("StudentAA033");
 
 		//JSを実行し、ページの最下部までスクロール
 		scrollBy("document.body.scrollHeight");
