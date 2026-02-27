@@ -84,7 +84,7 @@ public class Case08 {
 		//JSを実行し、ページの最下部までスクロール
 		scrollBy("document.body.scrollHeight");
 		//提出済み日報【デモ】を確認するを押下
-		webDriver.findElement(By.cssSelector("input[value='提出済み日報【デモ】を確認する']")).click();
+		webDriver.findElement(By.cssSelector("input[value='提出済み週報【デモ】を確認する']")).click();
 
 		//指定したタイトル文字列になるまで待機
 		titleTimeout("レポート登録 | LMS", 5);
@@ -102,7 +102,8 @@ public class Case08 {
 		//報告内容に記載されている記述をクリア
 		webDriver.findElement(By.id("content_0")).clear();
 		//報告内容を記述
-		webDriver.findElement(By.id("content_0")).sendKeys("今日はいい感じに進みました");
+		webDriver.findElement(By.id("content_0")).sendKeys("10");
+		scrollBy("document.body.scrollHeight");
 		//提出するボタンをクリック
 		webDriver.findElement(By.xpath("//button[text()='提出する']")).click();
 
@@ -127,6 +128,7 @@ public class Case08 {
 		//指定したタイトル文字列になるまで待機
 		assertEquals("ユーザー詳細", webDriver.getTitle());
 
+		scrollBy("document.body.scrollHeight");
 		getEvidence(new Object() {
 		}, "welcomeText");
 	}
@@ -139,14 +141,14 @@ public class Case08 {
 		scrollBy("document.body.scrollHeight");
 		// IDが2のフォーム内にある送信ボタンを特定してクリック
 		webDriver.findElement(
-				By.xpath("//form[.//input[@name='dailyReportSubmitId' and @value='2']]//input[@type='submit']"))
+				By.xpath("//form[.//input[@name='dailyReportSubmitId' and @value='3']]//input[@type='submit']"))
 				.click();
 		//(th)の隣にあるセル(td)から文字列を取得し、前後の空白を除去
-		String actual = webDriver.findElement(
-				By.xpath("//th[text()='本日の報告内容をお書きください。']/following-sibling::td")).getText().trim();
+		String actualAchievement = webDriver.findElement(
+				By.xpath("//th[contains(text(),'目標の達成度')]/following-sibling::td")).getText().trim();
 
 		//内容の比較
-		assertEquals("今日はいい感じに進みました", actual);
+		assertEquals("10", actualAchievement);
 
 		getEvidence(new Object() {
 		}, "reflectCorrections");
