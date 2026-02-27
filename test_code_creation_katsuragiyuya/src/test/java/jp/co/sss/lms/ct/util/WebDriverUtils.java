@@ -131,6 +131,16 @@ public class WebDriverUtils {
 		}
 	}
 
+	/**
+	 * タイトルタイムアウト設定
+	 * @param title
+	 * @param second
+	 */
+	public static void titleTimeout(String title, int second) {
+		WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(second));
+		wait.until(ExpectedConditions.titleIs(title));
+	}
+
 	//コンストラクタ（初期化)
 	public WebDriverUtils() {
 		PageFactory.initElements(webDriver, this);
